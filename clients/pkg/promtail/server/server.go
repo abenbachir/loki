@@ -220,15 +220,20 @@ func (s *PromtailServer) targets(rw http.ResponseWriter, req *http.Request) {
 
 // ready serves the ready endpoint
 func (s *PromtailServer) ready(rw http.ResponseWriter, _ *http.Request) {
+	level.Info(s.log).Log("msg", "received request '/ready'")
+
 	if s.healthCheckTarget && !s.tms.Ready() {
 		http.Error(rw, readinessProbeFailure, http.StatusInternalServerError)
 		return
 	}
 
 	rw.WriteHeader(http.StatusOK)
+
 	if _, err := rw.Write(readinessProbeSuccess); err != nil {
 		level.Error(s.log).Log("msg", "error writing success message", "error", err)
 	}
+
+	level.Info(s.log).Log("msg", "finished request '/ready'")
 }
 
 // computeExternalURL computes a sanitized external URL from a raw input. It infers unset
